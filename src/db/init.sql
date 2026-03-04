@@ -3,11 +3,11 @@
 -- 執行方式：mysql -u root -p < init.sql
 -- ============================================================
 
-CREATE DATABASE IF NOT EXISTS attendance_db
+CREATE DATABASE IF NOT EXISTS railway
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE attendance_db;
+USE railway;
 
 -- ─────────────────────────────────────────
 -- 1. 使用者帳號表
