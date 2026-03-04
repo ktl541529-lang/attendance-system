@@ -20,7 +20,7 @@ const login = async (req, res) => {
   try {
     // 查詢使用者（只查啟用中的帳號）
     const [rows] = await pool.execute(
-      'SELECT id, account, password, name, dept, role FROM users WHERE account = ? AND is_active = 1',
+      'SELECT id, account, password, name, dept, role FROM users WHERE account = ?',
       [account]
     );
 
