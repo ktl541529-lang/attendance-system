@@ -1,1007 +1,2052 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>醫院人員出勤管理系統</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #f0f2f5; --surface: #fff; --surface-2: #f7f8fa;
-    --border: #e2e6ea; --border-strong: #ced4da;
-    --text: #1a2332; --text-2: #4a5568; --text-3: #8896a5;
-    --primary: #1a56a4; --primary-light: #e8f0fb;
-    --success: #0d7a4e; --success-bg: #e6f4ef;
-    --warning: #b45309; --warning-bg: #fef3cd;
-    --danger: #c0392b; --danger-bg: #fde8e6;
-    --info: #0077b6; --info-bg: #e0f2fe;
-    --pending: #7c3aed; --pending-bg: #ede9fe;
-    --sidebar-w: 240px; --header-h: 56px;
-    --radius: 8px; --radius-sm: 4px;
-    --shadow: 0 1px 3px rgba(0,0,0,.08); --shadow-md: 0 4px 12px rgba(0,0,0,.1);
-    --font: 'Noto Sans TC', sans-serif; --mono: 'JetBrains Mono', monospace;
-    --t: .15s ease;
-  }
-  body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>醫院人員出勤管理系統</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  /* ── LOGIN ── */
-  .login-wrap {
-    min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, #0d2b5a, #1a4a8a, #0d2b5a); position: relative; overflow: hidden;
-  }
-  .login-wrap::before {
-    content:''; position:absolute; inset:0;
-    background: repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(255,255,255,.02) 40px,rgba(255,255,255,.02) 41px),
-                repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,255,255,.02) 40px,rgba(255,255,255,.02) 41px);
-  }
-  .login-card { background:var(--surface); border-radius:12px; padding:48px 44px; width:100%; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,.3); position:relative; z-index:1; }
-  .login-logo { display:flex; align-items:center; gap:12px; margin-bottom:32px; }
-  .login-logo-icon { width:44px; height:44px; background:var(--primary); border-radius:10px; display:flex; align-items:center; justify-content:center; }
-  .login-logo-icon svg { width:24px; height:24px; fill:white; }
-  .login-logo-text h1 { font-size:16px; font-weight:700; line-height:1.2; }
-  .login-logo-text p { font-size:12px; color:var(--text-3); }
-  .login-subtitle { font-size:22px; font-weight:600; margin-bottom:8px; }
-  .login-desc { font-size:13px; color:var(--text-2); margin-bottom:32px; }
-  .form-group { margin-bottom:18px; }
-  .form-group label { display:block; font-size:13px; font-weight:500; color:var(--text-2); margin-bottom:6px; }
-  .form-control {
-    width:100%; padding:10px 14px; border:1px solid var(--border-strong); border-radius:var(--radius-sm);
-    font-size:14px; font-family:var(--font); color:var(--text); background:var(--surface); outline:none;
-    transition:border-color var(--t), box-shadow var(--t);
-  }
-  .form-control:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(26,86,164,.12); }
-  .form-control.error { border-color:var(--danger); }
-  .field-error { font-size:12px; color:var(--danger); margin-top:4px; }
-  .btn {
-    display:inline-flex; align-items:center; justify-content:center; gap:6px;
-    padding:10px 20px; border-radius:var(--radius-sm); font-size:14px; font-weight:500;
-    font-family:var(--font); cursor:pointer; border:none; transition:all var(--t); white-space:nowrap;
-  }
-  .btn-primary { background:var(--primary); color:white; } .btn-primary:hover { filter:brightness(1.1); }
-  .btn-success { background:var(--success); color:white; } .btn-success:hover { filter:brightness(1.1); }
-  .btn-danger  { background:var(--danger);  color:white; } .btn-danger:hover  { filter:brightness(1.1); }
-  .btn-outline { background:transparent; color:var(--text-2); border:1px solid var(--border-strong); }
-  .btn-outline:hover { background:var(--bg); }
-  .btn-sm { padding:6px 12px; font-size:12px; }
-  .btn-block { width:100%; }
-  .btn:disabled { opacity:.5; cursor:not-allowed; }
-  .demo-accounts { margin-top:20px; padding:14px; background:var(--surface-2); border-radius:var(--radius-sm); border:1px solid var(--border); }
-  .demo-accounts p { font-size:12px; color:var(--text-3); margin-bottom:8px; font-weight:500; text-transform:uppercase; letter-spacing:.5px; }
-  .demo-row { display:flex; gap:8px; flex-wrap:wrap; }
-  .demo-tag { font-size:11px; padding:4px 10px; border-radius:20px; cursor:pointer; border:1px solid var(--border-strong); background:var(--surface); color:var(--text-2); transition:all var(--t); }
-  .demo-tag:hover { background:var(--primary-light); border-color:var(--primary); color:var(--primary); }
+    :root {
+      --bg: #f0f2f5;
+      --surface: #fff;
+      --surface-2: #f7f8fa;
+      --border: #e2e6ea;
+      --border-strong: #ced4da;
+      --text: #1a2332;
+      --text-2: #4a5568;
+      --text-3: #8896a5;
+      --primary: #1a56a4;
+      --primary-light: #e8f0fb;
+      --success: #0d7a4e;
+      --success-bg: #e6f4ef;
+      --warning: #b45309;
+      --warning-bg: #fef3cd;
+      --danger: #c0392b;
+      --danger-bg: #fde8e6;
+      --info: #0077b6;
+      --info-bg: #e0f2fe;
+      --pending: #7c3aed;
+      --pending-bg: #ede9fe;
+      --sidebar-w: 240px;
+      --header-h: 56px;
+      --radius: 8px;
+      --radius-sm: 4px;
+      --shadow: 0 1px 3px rgba(0, 0, 0, .08);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, .1);
+      --font: 'Noto Sans TC', sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --t: .15s ease;
+    }
 
-  /* ── LAYOUT ── */
-  .app { display:flex; height:100vh; overflow:hidden; }
-  .sidebar { width:var(--sidebar-w); background:#0d2b5a; display:flex; flex-direction:column; flex-shrink:0; overflow-y:auto; }
-  .sidebar-header { padding:18px 20px; border-bottom:1px solid rgba(255,255,255,.08); }
-  .sidebar-brand { display:flex; align-items:center; gap:10px; }
-  .sidebar-brand-icon { width:36px; height:36px; background:var(--primary); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .sidebar-brand-icon svg { width:20px; height:20px; fill:white; }
-  .sidebar-brand-text h2 { font-size:13px; font-weight:700; color:white; line-height:1.2; }
-  .sidebar-brand-text p  { font-size:11px; color:rgba(255,255,255,.4); }
-  .sidebar-nav { flex:1; padding:12px 0; }
-  .nav-section { padding:8px 16px 4px; font-size:10px; font-weight:600; color:rgba(255,255,255,.3); text-transform:uppercase; letter-spacing:1px; }
-  .nav-item { display:flex; align-items:center; gap:10px; padding:9px 16px; margin:1px 8px; border-radius:6px; cursor:pointer; transition:all var(--t); color:rgba(255,255,255,.65); font-size:13px; font-weight:500; }
-  .nav-item:hover { background:rgba(255,255,255,.08); color:white; }
-  .nav-item.active { background:var(--primary); color:white; }
-  .nav-item svg { width:16px; height:16px; flex-shrink:0; }
-  .nav-badge { margin-left:auto; background:#e74c3c; color:white; font-size:10px; font-weight:700; padding:1px 6px; border-radius:10px; min-width:18px; text-align:center; }
-  .sidebar-footer { padding:16px; border-top:1px solid rgba(255,255,255,.08); }
-  .user-card { display:flex; align-items:center; gap:10px; }
-  .user-avatar { width:36px; height:36px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:white; flex-shrink:0; }
-  .user-info { flex:1; min-width:0; }
-  .user-info .name { font-size:13px; font-weight:600; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .user-info .role-badge { display:inline-block; font-size:10px; padding:1px 6px; border-radius:4px; margin-top:2px; }
-  .role-admin    { background:rgba(231,76,60,.25); color:#ff9f9f; }
-  .role-employee { background:rgba(26,86,164,.3);  color:#93b8f5; }
-  .logout-btn { width:28px; height:28px; border-radius:6px; background:transparent; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.4); transition:all var(--t); flex-shrink:0; }
-  .logout-btn:hover { background:rgba(255,255,255,.1); color:white; }
-  .logout-btn svg { width:16px; height:16px; }
-  .main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
-  .topbar { height:var(--header-h); background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 24px; gap:16px; flex-shrink:0; }
-  .topbar-title { font-size:16px; font-weight:600; }
-  .topbar-subtitle { font-size:12px; color:var(--text-3); }
-  .topbar-actions { margin-left:auto; display:flex; align-items:center; gap:10px; }
-  .content { flex:1; overflow-y:auto; padding:24px; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
 
-  /* ── STATS ── */
-  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:16px; margin-bottom:24px; }
-  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; display:flex; align-items:center; gap:14px; box-shadow:var(--shadow); }
-  .stat-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .stat-icon svg { width:22px; height:22px; }
-  .stat-value { font-size:24px; font-weight:700; font-family:var(--mono); line-height:1; }
-  .stat-label { font-size:12px; color:var(--text-3); margin-top:3px; }
+    /* ── LOGIN ── */
+    .login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0d2b5a, #1a4a8a, #0d2b5a);
+      position: relative;
+      overflow: hidden;
+    }
 
-  /* ── TABLE ── */
-  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
-  .card-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
-  .card-title { font-size:15px; font-weight:600; flex:1; }
-  .filter-bar { padding:14px 20px; display:flex; gap:10px; flex-wrap:wrap; border-bottom:1px solid var(--border); background:var(--surface-2); }
-  .filter-bar .form-control { padding:7px 12px; font-size:13px; min-width:140px; flex:1; }
-  .table-wrap { overflow-x:auto; }
-  table { width:100%; border-collapse:collapse; }
-  th { text-align:left; padding:10px 16px; font-size:11px; font-weight:600; color:var(--text-3); text-transform:uppercase; letter-spacing:.5px; background:var(--surface-2); border-bottom:1px solid var(--border); white-space:nowrap; }
-  td { padding:12px 16px; border-bottom:1px solid var(--border); font-size:13px; vertical-align:middle; }
-  tr:last-child td { border-bottom:none; }
-  tr:hover td { background:var(--surface-2); }
-  .empty-state { text-align:center; padding:40px; color:var(--text-3); }
-  .badge { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600; white-space:nowrap; }
-  .badge::before { content:'●'; font-size:7px; }
-  .badge-pending  { background:var(--pending-bg);  color:var(--pending);  }
-  .badge-approved { background:var(--success-bg);  color:var(--success);  }
-  .badge-rejected { background:var(--danger-bg);   color:var(--danger);   }
-  .badge-info     { background:var(--info-bg);     color:var(--info);     }
+    .login-wrap::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255, 255, 255, .02) 40px, rgba(255, 255, 255, .02) 41px),
+        repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255, 255, 255, .02) 40px, rgba(255, 255, 255, .02) 41px);
+    }
 
-  /* ── MODAL ── */
-  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; animation:fadeIn .15s ease; }
-  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-  .modal { background:var(--surface); border-radius:10px; width:100%; max-width:540px; box-shadow:var(--shadow-md); animation:slideUp .15s ease; max-height:90vh; display:flex; flex-direction:column; }
-  @keyframes slideUp { from{transform:translateY(12px);opacity:0} to{transform:translateY(0);opacity:1} }
-  .modal-header { padding:18px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
-  .modal-title  { font-size:15px; font-weight:600; flex:1; }
-  .modal-close  { width:28px; height:28px; border:none; background:var(--bg); border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-3); font-size:16px; }
-  .modal-close:hover { background:var(--border); color:var(--text); }
-  .modal-body   { padding:24px; overflow-y:auto; flex:1; }
-  .modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px; }
-  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  select.form-control { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%238896a5' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; padding-right:28px; }
-  textarea.form-control { resize:vertical; min-height:80px; }
-  .alert { padding:12px 16px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:16px; }
-  .alert-danger  { background:var(--danger-bg);  color:var(--danger);  border:1px solid #f5c6c4; }
-  .alert-warning { background:var(--warning-bg); color:var(--warning); border:1px solid #f9dea0; }
-  .alert-success { background:var(--success-bg); color:var(--success); border:1px solid #c3e6d4; }
+    .login-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
+      position: relative;
+      z-index: 1;
+    }
 
-  /* ── MISC ── */
-  .log-item { padding:10px 0; border-bottom:1px solid var(--border); display:flex; gap:12px; font-size:12px; }
-  .log-item:last-child { border-bottom:none; }
-  .log-time  { color:var(--text-3); font-family:var(--mono); white-space:nowrap; }
-  .log-actor { font-weight:600; color:var(--primary); }
-  .log-msg   { color:var(--text-2); }
-  .action-btns { display:flex; gap:6px; }
-  .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
-  .page-title  { font-size:20px; font-weight:700; }
-  .page-desc   { font-size:13px; color:var(--text-3); margin-top:2px; }
-  .text-mono { font-family:var(--mono); }
-  .text-sm   { font-size:12px; color:var(--text-3); }
-  .chip { display:inline-flex; align-items:center; padding:2px 8px; border-radius:4px; font-size:11px; background:var(--primary-light); color:var(--primary); font-weight:500; }
-  .loading-spinner { display:inline-block; width:14px; height:14px; border:2px solid transparent; border-top-color:currentColor; border-radius:50%; animation:spin .6s linear infinite; }
-  @keyframes spin { to{transform:rotate(360deg)} }
-  .toast-container { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
-  .toast { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px 16px; box-shadow:var(--shadow-md); font-size:13px; min-width:280px; display:flex; align-items:center; gap:10px; animation:slideIn .2s ease; }
-  @keyframes slideIn { from{transform:translateX(20px);opacity:0} to{transform:translateX(0);opacity:1} }
-  .toast-success { border-left:3px solid var(--success); }
-  .toast-error   { border-left:3px solid var(--danger); }
-  .toast-warning { border-left:3px solid var(--warning); }
-  .api-badge { display:inline-flex; align-items:center; gap:5px; padding:2px 8px; border-radius:4px; font-size:10px; font-family:var(--mono); background:#1e293b; color:#7dd3fc; border:1px solid #334155; }
-  .mt-2 { margin-top:8px; }
-</style>
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .login-logo-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--primary);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-logo-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+    }
+
+    .login-logo-text h1 {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .login-logo-text p {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    .login-subtitle {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .login-desc {
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--surface);
+      outline: none;
+      transition: border-color var(--t), box-shadow var(--t);
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26, 86, 164, .12);
+    }
+
+    .form-control.error {
+      border-color: var(--danger);
+    }
+
+    .field-error {
+      font-size: 12px;
+      color: var(--danger);
+      margin-top: 4px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 500;
+      font-family: var(--font);
+      cursor: pointer;
+      border: none;
+      transition: all var(--t);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-2);
+      border: 1px solid var(--border-strong);
+    }
+
+    .btn-outline:hover {
+      background: var(--bg);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    .btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .demo-accounts {
+      margin-top: 20px;
+      padding: 14px;
+      background: var(--surface-2);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+
+    .demo-accounts p {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-bottom: 8px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .demo-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .demo-tag {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text-2);
+      transition: all var(--t);
+    }
+
+    .demo-tag:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ── LAYOUT ── */
+    .app {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: var(--sidebar-w);
+      background: #0d2b5a;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-brand-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+    }
+
+    .sidebar-brand-text h2 {
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+    }
+
+    .sidebar-brand-text p {
+      font-size: 11px;
+      color: rgba(255, 255, 255, .4);
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 0;
+    }
+
+    .nav-section {
+      padding: 8px 16px 4px;
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, .3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      margin: 1px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all var(--t);
+      color: rgba(255, 255, 255, .65);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, .08);
+      color: white;
+    }
+
+    .nav-item.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .nav-item svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      background: #e74c3c;
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-info .name {
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-info .role-badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-top: 2px;
+    }
+
+    .role-admin {
+      background: rgba(231, 76, 60, .25);
+      color: #ff9f9f;
+    }
+
+    .role-employee {
+      background: rgba(26, 86, 164, .3);
+      color: #93b8f5;
+    }
+
+    .logout-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, .4);
+      transition: all var(--t);
+      flex-shrink: 0;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, .1);
+      color: white;
+    }
+
+    .logout-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .topbar {
+      height: var(--header-h);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .topbar-subtitle {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    .topbar-actions {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    /* ── STATS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      font-family: var(--mono);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 3px;
+    }
+
+    /* ── TABLE ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .filter-bar {
+      padding: 14px 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+
+    .filter-bar .form-control {
+      padding: 7px 12px;
+      font-size: 13px;
+      min-width: 140px;
+      flex: 1;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--surface-2);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-3);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge::before {
+      content: '●';
+      font-size: 7px;
+    }
+
+    .badge-pending {
+      background: var(--pending-bg);
+      color: var(--pending);
+    }
+
+    .badge-approved {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .badge-rejected {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .badge-info {
+      background: var(--info-bg);
+      color: var(--info);
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeIn .15s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 10px;
+      width: 100%;
+      max-width: 540px;
+      box-shadow: var(--shadow-md);
+      animation: slideUp .15s ease;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(12px);
+        opacity: 0
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1
+      }
+    }
+
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: var(--bg);
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-3);
+      font-size: 16px;
+    }
+
+    .modal-close:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    select.form-control {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%238896a5' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 28px;
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .alert-danger {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid #f5c6c4;
+    }
+
+    .alert-warning {
+      background: var(--warning-bg);
+      color: var(--warning);
+      border: 1px solid #f9dea0;
+    }
+
+    .alert-success {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid #c3e6d4;
+    }
+
+    /* ── MISC ── */
+    .log-item {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+    }
+
+    .log-item:last-child {
+      border-bottom: none;
+    }
+
+    .log-time {
+      color: var(--text-3);
+      font-family: var(--mono);
+      white-space: nowrap;
+    }
+
+    .log-actor {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .log-msg {
+      color: var(--text-2);
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 6px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .page-desc {
+      font-size: 13px;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+
+    .text-mono {
+      font-family: var(--mono);
+    }
+
+    .text-sm {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      box-shadow: var(--shadow-md);
+      font-size: 13px;
+      min-width: 280px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn .2s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(20px);
+        opacity: 0
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1
+      }
+    }
+
+    .toast-success {
+      border-left: 3px solid var(--success);
+    }
+
+    .toast-error {
+      border-left: 3px solid var(--danger);
+    }
+
+    .toast-warning {
+      border-left: 3px solid var(--warning);
+    }
+
+    .api-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-family: var(--mono);
+      background: #1e293b;
+      color: #7dd3fc;
+      border: 1px solid #334155;
+    }
+
+    .mt-2 {
+      margin-top: 8px;
+    }
+  </style>
 </head>
+
 <body>
-<div id="app">
+  <div id="app">
 
-  <!-- TOAST -->
-  <div class="toast-container">
-    <div v-for="t in toasts" :key="t.id" class="toast" :class="'toast-'+t.type">
-      <span>{{ t.type==='success'?'✓':t.type==='error'?'✗':'!' }}</span>{{ t.msg }}
-    </div>
-  </div>
-
-  <!-- LOGIN -->
-  <div v-if="!currentUser" class="login-wrap">
-    <div class="login-card">
-      <div class="login-logo">
-        <div class="login-logo-icon"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
-        <div class="login-logo-text"><h1>某某醫院</h1><p>人事管理資訊系統</p></div>
-      </div>
-      <div class="login-subtitle">登入帳號</div>
-      <div class="login-desc">請使用您的員工帳號進行登入</div>
-      <!-- API 端點提示 -->
-      <div style="margin-bottom:16px">
-        <span class="api-badge">POST /api/auth/login</span>
-      </div>
-      <div class="alert alert-danger" v-if="loginError">{{ loginError }}</div>
-      <div class="form-group">
-        <label>帳號</label>
-        <input class="form-control" :class="{error:loginError}" v-model="loginForm.account" placeholder="請輸入員工帳號" @keyup.enter="doLogin" />
-      </div>
-      <div class="form-group">
-        <label>密碼</label>
-        <input class="form-control" :class="{error:loginError}" type="password" v-model="loginForm.password" placeholder="請輸入密碼" @keyup.enter="doLogin" />
-      </div>
-      <button class="btn btn-primary btn-block" @click="doLogin" :disabled="loginLoading">
-        <span v-if="loginLoading" class="loading-spinner"></span>
-        {{ loginLoading ? '登入中...' : '登入系統' }}
-      </button>
-      <div class="demo-accounts">
-        <p>示範帳號（點擊快速填入）</p>
-        <div class="demo-row">
-          <div class="demo-tag" @click="fillDemo('admin')">🔐 管理者 admin/1234</div>
-          <div class="demo-tag" @click="fillDemo('emp1')">👤 員工 emp1/1234</div>
-          <div class="demo-tag" @click="fillDemo('emp2')">👤 員工 emp2/1234</div>
-        </div>
+    <!-- TOAST -->
+    <div class="toast-container">
+      <div v-for="t in toasts" :key="t.id" class="toast" :class="'toast-'+t.type">
+        <span>{{ t.type==='success'?'✓':t.type==='error'?'✗':'!' }}</span>{{ t.msg }}
       </div>
     </div>
-  </div>
 
-  <!-- MAIN APP -->
-  <div v-else class="app">
-
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-brand">
-          <div class="sidebar-brand-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg></div>
-          <div class="sidebar-brand-text"><h2>某某醫院</h2><p>人事管理系統</p></div>
-        </div>
-      </div>
-      <nav class="sidebar-nav">
-        <div class="nav-section">主選單</div>
-        <div class="nav-item" :class="{active:page==='dashboard'}" @click="navigate('dashboard')">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> 總覽儀表板
-        </div>
-        <div class="nav-section">出勤管理</div>
-        <div class="nav-item" :class="{active:page==='my-requests'}" @click="navigate('my-requests')">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg> 我的申請
-        </div>
-        <div v-if="isAdmin" class="nav-item" :class="{active:page==='review'}" @click="navigate('review')">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-          審核管理 <span v-if="pendingCount>0" class="nav-badge">{{ pendingCount }}</span>
-        </div>
-        <div v-if="isAdmin" class="nav-item" :class="{active:page==='all-records'}" @click="navigate('all-records')">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5h2V3c-1.1 0-2 .9-2 2zm0 8h2v-2H3v2zm4 8h2v-2H7v2zm-4-4h2v-2H3v2zm10-16H7v2h6V1zm6 0v2h2c0-1.1-.9-2-2-2zM3 21c0 1.1.9 2 2 2v-2H3zm16 2c1.1 0 2-.9 2-2h-2v2zM3 9h2V7H3v2zm10 12h-2v2h2v-2zm6-12h2V7h-2v2zm0 12v-2h-2c0 1.1.9 2 2 2z"/></svg>
-          全部記錄
-        </div>
-        <div class="nav-section">帳號管理</div>
-        <div v-if="isAdmin" class="nav-item" :class="{active:page==='users'}" @click="navigate('users')">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-          員工帳號
-        </div>
-        <div class="nav-item" :class="{active:page==='logs'}" @click="navigate('logs')">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-          操作紀錄
-        </div>
-      </nav>
-      <div class="sidebar-footer">
-        <div class="user-card">
-          <div class="user-avatar">{{ currentUser.name.slice(0,1) }}</div>
-          <div class="user-info">
-            <div class="name">{{ currentUser.name }}</div>
-            <div class="role-badge" :class="isAdmin?'role-admin':'role-employee'">{{ isAdmin?'管理者':'一般員工' }}</div>
+    <!-- LOGIN -->
+    <div v-if="!currentUser" class="login-wrap">
+      <div class="login-card">
+        <div class="login-logo">
+          <div class="login-logo-icon"><svg viewBox="0 0 24 24">
+              <path
+                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+            </svg></div>
+          <div class="login-logo-text">
+            <h1>某某醫院</h1>
+            <p>人事管理資訊系統</p>
           </div>
-          <button class="logout-btn" @click="doLogout" title="登出">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+        </div>
+        <div class="login-subtitle">登入帳號</div>
+        <div class="login-desc">請使用您的員工帳號進行登入</div>
+        <!-- API 端點提示 -->
+        <div style="margin-bottom:16px">
+          <span class="api-badge">POST /api/auth/login</span>
+        </div>
+        <div class="alert alert-danger" v-if="loginError">{{ loginError }}</div>
+        <div class="form-group">
+          <label>帳號</label>
+          <input class="form-control" :class="{error:loginError}" v-model="loginForm.account" placeholder="請輸入員工帳號"
+            @keyup.enter="doLogin" />
+        </div>
+        <div class="form-group">
+          <label>密碼</label>
+          <input class="form-control" :class="{error:loginError}" type="password" v-model="loginForm.password"
+            placeholder="請輸入密碼" @keyup.enter="doLogin" />
+        </div>
+        <button class="btn btn-primary btn-block" @click="doLogin" :disabled="loginLoading">
+          <span v-if="loginLoading" class="loading-spinner"></span>
+          {{ loginLoading ? '登入中...' : '登入系統' }}
+        </button>
+        <div class="demo-accounts">
+          <p>示範帳號（點擊快速填入）</p>
+          <div class="demo-row">
+            <div class="demo-tag" @click="fillDemo('admin')">🔐 管理者 admin/1234</div>
+            <div class="demo-tag" @click="fillDemo('emp1')">👤 員工 emp1/1234</div>
+            <div class="demo-tag" @click="fillDemo('emp2')">👤 員工 emp2/1234</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div v-else class="app">
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-brand">
+            <div class="sidebar-brand-icon"><svg viewBox="0 0 24 24">
+                <path
+                  d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z" />
+              </svg></div>
+            <div class="sidebar-brand-text">
+              <h2>某某醫院</h2>
+              <p>人事管理系統</p>
+            </div>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-section">主選單</div>
+          <div class="nav-item" :class="{active:page==='dashboard'}" @click="navigate('dashboard')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+            </svg> 總覽儀表板
+          </div>
+          <div class="nav-section">出勤管理</div>
+          <div class="nav-item" :class="{active:page==='my-requests'}" @click="navigate('my-requests')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+            </svg> 我的申請
+          </div>
+          <div v-if="isAdmin" class="nav-item" :class="{active:page==='review'}" @click="navigate('review')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+            </svg>
+            審核管理 <span v-if="pendingCount>0" class="nav-badge">{{ pendingCount }}</span>
+          </div>
+          <div v-if="isAdmin" class="nav-item" :class="{active:page==='all-records'}" @click="navigate('all-records')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M3 5h2V3c-1.1 0-2 .9-2 2zm0 8h2v-2H3v2zm4 8h2v-2H7v2zm-4-4h2v-2H3v2zm10-16H7v2h6V1zm6 0v2h2c0-1.1-.9-2-2-2zM3 21c0 1.1.9 2 2 2v-2H3zm16 2c1.1 0 2-.9 2-2h-2v2zM3 9h2V7H3v2zm10 12h-2v2h2v-2zm6-12h2V7h-2v2zm0 12v-2h-2c0 1.1.9 2 2 2z" />
+            </svg>
+            全部記錄
+          </div>
+          <div class="nav-section">帳號管理</div>
+          <div v-if="isAdmin" class="nav-item" :class="{active:page==='users'}" @click="navigate('users')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+            </svg>
+            員工帳號
+          </div>
+          <div class="nav-item" :class="{active:page==='logs'}" @click="navigate('logs')">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
+            </svg>
+            操作紀錄
+          </div>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="user-card">
+            <div class="user-avatar">{{ currentUser.name.slice(0,1) }}</div>
+            <div class="user-info">
+              <div class="name">{{ currentUser.name }}</div>
+              <div class="role-badge" :class="isAdmin?'role-admin':'role-employee'">{{ isAdmin?'管理者':'一般員工' }}</div>
+            </div>
+            <button class="logout-btn" @click="doLogout" title="登出">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path
+                  d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN -->
+      <div class="main">
+        <div class="topbar">
+          <div>
+            <div class="topbar-title">{{ pageTitle }}</div>
+            <div class="topbar-subtitle">{{ pageSub }}</div>
+          </div>
+          <div class="topbar-actions">
+            <!-- 顯示本頁主要 API -->
+            <span class="api-badge" v-if="currentApi">{{ currentApi }}</span>
+            <span class="chip">{{ currentUser.dept }}</span>
+            <span class="text-sm text-mono">{{ today }}</span>
+          </div>
+        </div>
+
+        <div class="content">
+
+          <!-- 全域 Loading -->
+          <div v-if="pageLoading" style="text-align:center;padding:60px;color:var(--text-3)">
+            <span class="loading-spinner" style="width:32px;height:32px;border-width:3px"></span>
+            <p style="margin-top:16px">載入中...</p>
+          </div>
+
+          <!-- DASHBOARD -->
+          <div v-else-if="page==='dashboard'">
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-icon" style="background:#e8f0fb"><svg viewBox="0 0 24 24" fill="#1a56a4">
+                    <path
+                      d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+                  </svg></div>
+                <div>
+                  <div class="stat-value">{{ stats.total }}</div>
+                  <div class="stat-label">申請總數</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon" style="background:var(--pending-bg)"><svg viewBox="0 0 24 24"
+                    fill="var(--pending)">
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                  </svg></div>
+                <div>
+                  <div class="stat-value">{{ stats.pending }}</div>
+                  <div class="stat-label">申請中</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon" style="background:var(--success-bg)"><svg viewBox="0 0 24 24"
+                    fill="var(--success)">
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                  </svg></div>
+                <div>
+                  <div class="stat-value">{{ stats.approved }}</div>
+                  <div class="stat-label">已核准</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon" style="background:var(--danger-bg)"><svg viewBox="0 0 24 24"
+                    fill="var(--danger)">
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+                  </svg></div>
+                <div>
+                  <div class="stat-value">{{ stats.rejected }}</div>
+                  <div class="stat-label">已退回</div>
+                </div>
+              </div>
+              <div v-if="isAdmin" class="stat-card">
+                <div class="stat-icon" style="background:#fff8e1"><svg viewBox="0 0 24 24" fill="#f59e0b">
+                    <path
+                      d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                  </svg></div>
+                <div>
+                  <div class="stat-value">{{ pendingCount }}</div>
+                  <div class="stat-label">全部待審核</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">最近申請</div>
+                <button class="btn btn-primary btn-sm" @click="openNewModal">+ 新增申請</button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>類型</th>
+                      <th>日期區間</th>
+                      <th>事由</th>
+                      <th>狀態</th>
+                      <th>申請日</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="records.length===0">
+                      <td colspan="5">
+                        <div class="empty-state">
+                          <p>尚無申請記錄</p>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr v-for="r in records.slice(0,5)" :key="r.id">
+                      <td><span class="chip">{{ r.type }}</span></td>
+                      <td class="text-mono text-sm">{{ r.start_date }} ~ {{ r.end_date }}</td>
+                      <td>{{ r.reason }}</td>
+                      <td><span class="badge" :class="statusBadge(r.status)">{{ statusLabel(r.status) }}</span></td>
+                      <td class="text-sm">{{ fmtDate(r.created_at) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- MY REQUESTS -->
+          <div v-else-if="page==='my-requests'">
+            <div class="page-header">
+              <div>
+                <div class="page-title">我的申請</div>
+                <div class="page-desc">管理您的出勤申請記錄</div>
+              </div>
+              <button class="btn btn-primary" @click="openNewModal">+ 新增申請</button>
+            </div>
+            <div class="card">
+              <div class="filter-bar">
+                <input class="form-control" v-model="filter.keyword" placeholder="🔍 關鍵字搜尋..."
+                  @input="debounceSearch" />
+                <select class="form-control" v-model="filter.status" @change="fetchRecords">
+                  <option value="">全部狀態</option>
+                  <option value="pending">申請中</option>
+                  <option value="approved">已核准</option>
+                  <option value="rejected">已退回</option>
+                </select>
+                <select class="form-control" v-model="filter.type" @change="fetchRecords">
+                  <option value="">全部類型</option>
+                  <option v-for="t in leaveTypes" :key="t" :value="t">{{ t }}</option>
+                </select>
+                <input type="date" class="form-control" v-model="filter.date_from" @change="fetchRecords" />
+                <input type="date" class="form-control" v-model="filter.date_to" @change="fetchRecords" />
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>編號</th>
+                      <th>類型</th>
+                      <th>開始</th>
+                      <th>結束</th>
+                      <th>事由</th>
+                      <th>狀態</th>
+                      <th>退回原因</th>
+                      <th>申請時間</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="records.length===0">
+                      <td colspan="9">
+                        <div class="empty-state">
+                          <p>查無符合條件的申請記錄</p>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr v-for="r in records" :key="r.id">
+                      <td class="text-mono text-sm">#{{ r.id }}</td>
+                      <td><span class="chip">{{ r.type }}</span></td>
+                      <td class="text-mono text-sm">{{ r.start_date }}</td>
+                      <td class="text-mono text-sm">{{ r.end_date }}</td>
+                      <td>{{ r.reason }}</td>
+                      <td><span class="badge" :class="statusBadge(r.status)">{{ statusLabel(r.status) }}</span></td>
+                      <td style="font-size:12px;color:var(--danger)">{{ r.reject_reason || '—' }}</td>
+                      <td class="text-sm">{{ fmtDate(r.created_at) }}</td>
+                      <td>
+                        <div class="action-btns">
+                          <button class="btn btn-outline btn-sm" :disabled="r.status!=='pending'"
+                            @click="openEditModal(r)">編輯</button>
+                          <button class="btn btn-danger btn-sm" :disabled="r.status==='approved'"
+                            @click="confirmDelete(r)">刪除</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- REVIEW -->
+          <div v-else-if="page==='review' && isAdmin">
+            <div class="page-header">
+              <div>
+                <div class="page-title">審核管理</div>
+                <div class="page-desc">待審核的出勤申請</div>
+              </div>
+              <span class="badge badge-pending" style="font-size:13px;padding:6px 14px">待審核 {{ pendingCount }} 筆</span>
+            </div>
+            <div class="card">
+              <div class="filter-bar">
+                <input class="form-control" v-model="filter.keyword" placeholder="🔍 搜尋員工、事由..."
+                  @input="debounceSearch" />
+                <select class="form-control" v-model="filter.type" @change="fetchRecords">
+                  <option value="">全部類型</option>
+                  <option v-for="t in leaveTypes" :key="t" :value="t">{{ t }}</option>
+                </select>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>編號</th>
+                      <th>申請人</th>
+                      <th>部門</th>
+                      <th>類型</th>
+                      <th>日期區間</th>
+                      <th>事由</th>
+                      <th>申請時間</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="records.length===0">
+                      <td colspan="8">
+                        <div class="empty-state">
+                          <p>目前沒有待審核的申請</p>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr v-for="r in records" :key="r.id">
+                      <td class="text-mono text-sm">#{{ r.id }}</td>
+                      <td><strong>{{ r.user_name }}</strong></td>
+                      <td class="text-sm">{{ r.dept }}</td>
+                      <td><span class="chip">{{ r.type }}</span></td>
+                      <td class="text-mono text-sm">{{ r.start_date }} ~ {{ r.end_date }}</td>
+                      <td>{{ r.reason }}</td>
+                      <td class="text-sm">{{ fmtDate(r.created_at) }}</td>
+                      <td>
+                        <div class="action-btns">
+                          <button class="btn btn-success btn-sm" @click="doApprove(r)">✓ 核准</button>
+                          <button class="btn btn-danger btn-sm" @click="openRejectModal(r)">✗ 退回</button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ALL RECORDS -->
+          <div v-else-if="page==='all-records' && isAdmin">
+            <div class="page-header">
+              <div>
+                <div class="page-title">全部記錄</div>
+                <div class="page-desc">所有員工出勤申請記錄</div>
+              </div>
+              <button class="btn btn-outline btn-sm" @click="exportCSV">⬇ 匯出 CSV</button>
+            </div>
+            <div class="card">
+              <div class="filter-bar">
+                <input class="form-control" v-model="filter.keyword" placeholder="🔍 搜尋..." @input="debounceSearch" />
+                <select class="form-control" v-model="filter.status" @change="fetchRecords">
+                  <option value="">全部狀態</option>
+                  <option value="pending">申請中</option>
+                  <option value="approved">已核准</option>
+                  <option value="rejected">已退回</option>
+                </select>
+                <select class="form-control" v-model="filter.type" @change="fetchRecords">
+                  <option value="">全部類型</option>
+                  <option v-for="t in leaveTypes" :key="t" :value="t">{{ t }}</option>
+                </select>
+                <input type="date" class="form-control" v-model="filter.date_from" @change="fetchRecords" />
+                <input type="date" class="form-control" v-model="filter.date_to" @change="fetchRecords" />
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>編號</th>
+                      <th>申請人</th>
+                      <th>部門</th>
+                      <th>類型</th>
+                      <th>日期區間</th>
+                      <th>事由</th>
+                      <th>狀態</th>
+                      <th>退回原因</th>
+                      <th>申請時間</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="records.length===0">
+                      <td colspan="9">
+                        <div class="empty-state">
+                          <p>查無記錄</p>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr v-for="r in records" :key="r.id">
+                      <td class="text-mono text-sm">#{{ r.id }}</td>
+                      <td>{{ r.user_name }}</td>
+                      <td class="text-sm">{{ r.dept }}</td>
+                      <td><span class="chip">{{ r.type }}</span></td>
+                      <td class="text-mono text-sm">{{ r.start_date }} ~ {{ r.end_date }}</td>
+                      <td>{{ r.reason }}</td>
+                      <td><span class="badge" :class="statusBadge(r.status)">{{ statusLabel(r.status) }}</span></td>
+                      <td style="font-size:12px;color:var(--danger)">{{ r.reject_reason || '—' }}</td>
+                      <td class="text-sm">{{ fmtDate(r.created_at) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- USERS -->
+          <div v-else-if="page==='users' && isAdmin">
+            <div class="page-header">
+              <div>
+                <div class="page-title">員工帳號管理</div>
+                <div class="page-desc">系統使用者帳號列表</div>
+              </div>
+              <button class="btn btn-primary" @click="openNewUserModal">+ 新增員工</button>
+            </div>
+            <div class="card">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>帳號</th>
+                      <th>姓名</th>
+                      <th>部門</th>
+                      <th>角色</th>
+                      <th>申請總數</th>
+                      <th>待審核</th>
+                      <th>已核准</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="u in userList" :key="u.id">
+                      <td class="text-mono text-sm">{{ u.account }}</td>
+                      <td><strong>{{ u.name }}</strong></td>
+                      <td>{{ u.dept }}</td>
+                      <td><span class="badge" :class="u.role==='admin'?'badge-rejected':'badge-info'">{{
+                          u.role==='admin'?'管理者':'一般員工' }}</span></td>
+                      <td>{{ u.total_requests }}</td>
+                      <td>{{ u.pending_count }}</td>
+                      <td>{{ u.approved_count }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- LOGS -->
+          <div v-else-if="page==='logs'">
+            <div class="page-header">
+              <div>
+                <div class="page-title">操作紀錄</div>
+                <div class="page-desc">系統稽核紀錄</div>
+              </div>
+            </div>
+            <div class="card">
+              <div style="padding:8px 20px">
+                <div v-if="logs.length===0" class="empty-state">
+                  <p>尚無操作紀錄</p>
+                </div>
+                <div class="log-item" v-for="l in logs" :key="l.id">
+                  <div class="log-time">{{ fmtDate(l.created_at) }}</div>
+                  <div><span class="log-actor">{{ l.actor_name }}</span><span class="log-msg"> {{ l.detail }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: FORM -->
+    <div class="modal-overlay" v-if="showFormModal" @click.self="showFormModal=false">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">{{ editingRecord ? '編輯申請' : '新增申請' }}</div>
+          <span class="api-badge" style="margin-right:8px">{{ editingRecord ? 'PUT' : 'POST' }} /api/attendance{{
+            editingRecord ? '/'+editingRecord.id : '' }}</span>
+          <button class="modal-close" @click="showFormModal=false">✕</button>
+        </div>
+        <div class="modal-body">
+          <div v-if="formError" class="alert alert-danger">{{ formError }}</div>
+          <div class="form-group">
+            <label>申請類型 <span style="color:var(--danger)">*</span></label>
+            <select class="form-control" v-model="form.type">
+              <option value="">請選擇</option>
+              <option v-for="t in leaveTypes" :key="t" :value="t">{{ t }}</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>開始日期 <span style="color:var(--danger)">*</span></label>
+              <input type="date" class="form-control" v-model="form.start_date" />
+            </div>
+            <div class="form-group">
+              <label>結束日期 <span style="color:var(--danger)">*</span></label>
+              <input type="date" class="form-control" v-model="form.end_date" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>事由說明 <span style="color:var(--danger)">*</span></label>
+            <textarea class="form-control" v-model="form.reason" placeholder="請說明申請事由（10~200字）" rows="3"></textarea>
+            <div class="text-sm mt-2">{{ form.reason.length }} / 200 字</div>
+          </div>
+          <div class="form-group">
+            <label>代理人</label>
+            <input class="form-control" v-model="form.proxy_name" placeholder="代理人姓名（選填）" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" @click="showFormModal=false">取消</button>
+          <button class="btn btn-primary" @click="saveForm" :disabled="saving">
+            <span v-if="saving" class="loading-spinner"></span>
+            {{ saving ? '處理中...' : (editingRecord ? '儲存修改' : '送出申請') }}
           </button>
         </div>
       </div>
     </div>
 
-    <!-- MAIN -->
-    <div class="main">
-      <div class="topbar">
-        <div>
-          <div class="topbar-title">{{ pageTitle }}</div>
-          <div class="topbar-subtitle">{{ pageSub }}</div>
+    <!-- MODAL: REJECT -->
+    <div class="modal-overlay" v-if="showRejectModal" @click.self="showRejectModal=false">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">退回申請</div>
+          <span class="api-badge" style="margin-right:8px">PATCH /api/attendance/:id/reject</span>
+          <button class="modal-close" @click="showRejectModal=false">✕</button>
         </div>
-        <div class="topbar-actions">
-          <!-- 顯示本頁主要 API -->
-          <span class="api-badge" v-if="currentApi">{{ currentApi }}</span>
-          <span class="chip">{{ currentUser.dept }}</span>
-          <span class="text-sm text-mono">{{ today }}</span>
-        </div>
-      </div>
-
-      <div class="content">
-
-        <!-- 全域 Loading -->
-        <div v-if="pageLoading" style="text-align:center;padding:60px;color:var(--text-3)">
-          <span class="loading-spinner" style="width:32px;height:32px;border-width:3px"></span>
-          <p style="margin-top:16px">載入中...</p>
-        </div>
-
-        <!-- DASHBOARD -->
-        <div v-else-if="page==='dashboard'">
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-icon" style="background:#e8f0fb"><svg viewBox="0 0 24 24" fill="#1a56a4"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg></div>
-              <div><div class="stat-value">{{ stats.total }}</div><div class="stat-label">申請總數</div></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon" style="background:var(--pending-bg)"><svg viewBox="0 0 24 24" fill="var(--pending)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></div>
-              <div><div class="stat-value">{{ stats.pending }}</div><div class="stat-label">申請中</div></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon" style="background:var(--success-bg)"><svg viewBox="0 0 24 24" fill="var(--success)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
-              <div><div class="stat-value">{{ stats.approved }}</div><div class="stat-label">已核准</div></div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon" style="background:var(--danger-bg)"><svg viewBox="0 0 24 24" fill="var(--danger)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
-              <div><div class="stat-value">{{ stats.rejected }}</div><div class="stat-label">已退回</div></div>
-            </div>
-            <div v-if="isAdmin" class="stat-card">
-              <div class="stat-icon" style="background:#fff8e1"><svg viewBox="0 0 24 24" fill="#f59e0b"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg></div>
-              <div><div class="stat-value">{{ pendingCount }}</div><div class="stat-label">全部待審核</div></div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">最近申請</div>
-              <button class="btn btn-primary btn-sm" @click="openNewModal">+ 新增申請</button>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>類型</th><th>日期區間</th><th>事由</th><th>狀態</th><th>申請日</th></tr></thead>
-                <tbody>
-                  <tr v-if="records.length===0"><td colspan="5"><div class="empty-state"><p>尚無申請記錄</p></div></td></tr>
-                  <tr v-for="r in records.slice(0,5)" :key="r.id">
-                    <td><span class="chip">{{ r.type }}</span></td>
-                    <td class="text-mono text-sm">{{ r.start_date }} ~ {{ r.end_date }}</td>
-                    <td>{{ r.reason }}</td>
-                    <td><span class="badge" :class="statusBadge(r.status)">{{ statusLabel(r.status) }}</span></td>
-                    <td class="text-sm">{{ fmtDate(r.created_at) }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- MY REQUESTS -->
-        <div v-else-if="page==='my-requests'">
-          <div class="page-header">
-            <div><div class="page-title">我的申請</div><div class="page-desc">管理您的出勤申請記錄</div></div>
-            <button class="btn btn-primary" @click="openNewModal">+ 新增申請</button>
-          </div>
-          <div class="card">
-            <div class="filter-bar">
-              <input class="form-control" v-model="filter.keyword" placeholder="🔍 關鍵字搜尋..." @input="debounceSearch" />
-              <select class="form-control" v-model="filter.status" @change="fetchRecords">
-                <option value="">全部狀態</option>
-                <option value="pending">申請中</option>
-                <option value="approved">已核准</option>
-                <option value="rejected">已退回</option>
-              </select>
-              <select class="form-control" v-model="filter.type" @change="fetchRecords">
-                <option value="">全部類型</option>
-                <option v-for="t in leaveTypes" :key="t" :value="t">{{ t }}</option>
-              </select>
-              <input type="date" class="form-control" v-model="filter.date_from" @change="fetchRecords" />
-              <input type="date" class="form-control" v-model="filter.date_to"   @change="fetchRecords" />
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>編號</th><th>類型</th><th>開始</th><th>結束</th><th>事由</th><th>狀態</th><th>退回原因</th><th>申請時間</th><th>操作</th></tr></thead>
-                <tbody>
-                  <tr v-if="records.length===0"><td colspan="9"><div class="empty-state"><p>查無符合條件的申請記錄</p></div></td></tr>
-                  <tr v-for="r in records" :key="r.id">
-                    <td class="text-mono text-sm">#{{ r.id }}</td>
-                    <td><span class="chip">{{ r.type }}</span></td>
-                    <td class="text-mono text-sm">{{ r.start_date }}</td>
-                    <td class="text-mono text-sm">{{ r.end_date }}</td>
-                    <td>{{ r.reason }}</td>
-                    <td><span class="badge" :class="statusBadge(r.status)">{{ statusLabel(r.status) }}</span></td>
-                    <td style="font-size:12px;color:var(--danger)">{{ r.reject_reason || '—' }}</td>
-                    <td class="text-sm">{{ fmtDate(r.created_at) }}</td>
-                    <td>
-                      <div class="action-btns">
-                        <button class="btn btn-outline btn-sm" :disabled="r.status!=='pending'" @click="openEditModal(r)">編輯</button>
-                        <button class="btn btn-danger btn-sm"  :disabled="r.status==='approved'" @click="confirmDelete(r)">刪除</button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- REVIEW -->
-        <div v-else-if="page==='review' && isAdmin">
-          <div class="page-header">
-            <div><div class="page-title">審核管理</div><div class="page-desc">待審核的出勤申請</div></div>
-            <span class="badge badge-pending" style="font-size:13px;padding:6px 14px">待審核 {{ pendingCount }} 筆</span>
-          </div>
-          <div class="card">
-            <div class="filter-bar">
-              <input class="form-control" v-model="filter.keyword" placeholder="🔍 搜尋員工、事由..." @input="debounceSearch" />
-              <select class="form-control" v-model="filter.type" @change="fetchRecords">
-                <option value="">全部類型</option>
-                <option v-for="t in leaveTypes" :key="t" :value="t">{{ t }}</option>
-              </select>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>編號</th><th>申請人</th><th>部門</th><th>類型</th><th>日期區間</th><th>事由</th><th>申請時間</th><th>操作</th></tr></thead>
-                <tbody>
-                  <tr v-if="records.length===0"><td colspan="8"><div class="empty-state"><p>目前沒有待審核的申請</p></div></td></tr>
-                  <tr v-for="r in records" :key="r.id">
-                    <td class="text-mono text-sm">#{{ r.id }}</td>
-                    <td><strong>{{ r.user_name }}</strong></td>
-                    <td class="text-sm">{{ r.dept }}</td>
-                    <td><span class="chip">{{ r.type }}</span></td>
-                    <td class="text-mono text-sm">{{ r.start_date }} ~ {{ r.end_date }}</td>
-                    <td>{{ r.reason }}</td>
-                    <td class="text-sm">{{ fmtDate(r.created_at) }}</td>
-                    <td>
-                      <div class="action-btns">
-                        <button class="btn btn-success btn-sm" @click="doApprove(r)">✓ 核准</button>
-                        <button class="btn btn-danger btn-sm"  @click="openRejectModal(r)">✗ 退回</button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- ALL RECORDS -->
-        <div v-else-if="page==='all-records' && isAdmin">
-          <div class="page-header">
-            <div><div class="page-title">全部記錄</div><div class="page-desc">所有員工出勤申請記錄</div></div>
-            <button class="btn btn-outline btn-sm" @click="exportCSV">⬇ 匯出 CSV</button>
-          </div>
-          <div class="card">
-            <div class="filter-bar">
-              <input class="form-control" v-model="filter.keyword" placeholder="🔍 搜尋..." @input="debounceSearch" />
-              <select class="form-control" v-model="filter.status" @change="fetchRecords">
-                <option value="">全部狀態</option>
-                <option value="pending">申請中</option>
-                <option value="approved">已核准</option>
-                <option value="rejected">已退回</option>
-              </select>
-              <select class="form-control" v-model="filter.type" @change="fetchRecords">
-                <option value="">全部類型</option>
-                <option v-for="t in leaveTypes" :key="t" :value="t">{{ t }}</option>
-              </select>
-              <input type="date" class="form-control" v-model="filter.date_from" @change="fetchRecords" />
-              <input type="date" class="form-control" v-model="filter.date_to"   @change="fetchRecords" />
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>編號</th><th>申請人</th><th>部門</th><th>類型</th><th>日期區間</th><th>事由</th><th>狀態</th><th>退回原因</th><th>申請時間</th></tr></thead>
-                <tbody>
-                  <tr v-if="records.length===0"><td colspan="9"><div class="empty-state"><p>查無記錄</p></div></td></tr>
-                  <tr v-for="r in records" :key="r.id">
-                    <td class="text-mono text-sm">#{{ r.id }}</td>
-                    <td>{{ r.user_name }}</td>
-                    <td class="text-sm">{{ r.dept }}</td>
-                    <td><span class="chip">{{ r.type }}</span></td>
-                    <td class="text-mono text-sm">{{ r.start_date }} ~ {{ r.end_date }}</td>
-                    <td>{{ r.reason }}</td>
-                    <td><span class="badge" :class="statusBadge(r.status)">{{ statusLabel(r.status) }}</span></td>
-                    <td style="font-size:12px;color:var(--danger)">{{ r.reject_reason || '—' }}</td>
-                    <td class="text-sm">{{ fmtDate(r.created_at) }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- USERS -->
-        <div v-else-if="page==='users' && isAdmin">
-          <div class="page-header">
-            <div><div class="page-title">員工帳號管理</div><div class="page-desc">系統使用者帳號列表</div></div>
-          </div>
-          <div class="card">
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>帳號</th><th>姓名</th><th>部門</th><th>角色</th><th>申請總數</th><th>待審核</th><th>已核准</th></tr></thead>
-                <tbody>
-                  <tr v-for="u in userList" :key="u.id">
-                    <td class="text-mono text-sm">{{ u.account }}</td>
-                    <td><strong>{{ u.name }}</strong></td>
-                    <td>{{ u.dept }}</td>
-                    <td><span class="badge" :class="u.role==='admin'?'badge-rejected':'badge-info'">{{ u.role==='admin'?'管理者':'一般員工' }}</span></td>
-                    <td>{{ u.total_requests }}</td>
-                    <td>{{ u.pending_count }}</td>
-                    <td>{{ u.approved_count }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- LOGS -->
-        <div v-else-if="page==='logs'">
-          <div class="page-header">
-            <div><div class="page-title">操作紀錄</div><div class="page-desc">系統稽核紀錄</div></div>
-          </div>
-          <div class="card">
-            <div style="padding:8px 20px">
-              <div v-if="logs.length===0" class="empty-state"><p>尚無操作紀錄</p></div>
-              <div class="log-item" v-for="l in logs" :key="l.id">
-                <div class="log-time">{{ fmtDate(l.created_at) }}</div>
-                <div><span class="log-actor">{{ l.actor_name }}</span><span class="log-msg"> {{ l.detail }}</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: FORM -->
-  <div class="modal-overlay" v-if="showFormModal" @click.self="showFormModal=false">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">{{ editingRecord ? '編輯申請' : '新增申請' }}</div>
-        <span class="api-badge" style="margin-right:8px">{{ editingRecord ? 'PUT' : 'POST' }} /api/attendance{{ editingRecord ? '/'+editingRecord.id : '' }}</span>
-        <button class="modal-close" @click="showFormModal=false">✕</button>
-      </div>
-      <div class="modal-body">
-        <div v-if="formError" class="alert alert-danger">{{ formError }}</div>
-        <div class="form-group">
-          <label>申請類型 <span style="color:var(--danger)">*</span></label>
-          <select class="form-control" v-model="form.type">
-            <option value="">請選擇</option>
-            <option v-for="t in leaveTypes" :key="t" :value="t">{{ t }}</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>開始日期 <span style="color:var(--danger)">*</span></label>
-            <input type="date" class="form-control" v-model="form.start_date" />
+        <div class="modal-body">
+          <div class="alert alert-warning">
+            退回 <strong>{{ rejectTarget?.user_name }}</strong> 的申請（{{ rejectTarget?.type }}，{{ rejectTarget?.start_date
+            }} ~ {{ rejectTarget?.end_date }}）
           </div>
           <div class="form-group">
-            <label>結束日期 <span style="color:var(--danger)">*</span></label>
-            <input type="date" class="form-control" v-model="form.end_date" />
+            <label>退回原因 <span style="color:var(--danger)">*</span></label>
+            <textarea class="form-control" v-model="rejectReason" placeholder="請輸入退回原因..." rows="4"></textarea>
+          </div>
+          <div v-if="rejectError" class="field-error">{{ rejectError }}</div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" @click="showRejectModal=false">取消</button>
+          <button class="btn btn-danger" @click="doReject" :disabled="saving">
+            <span v-if="saving" class="loading-spinner"></span>確認退回
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: DELETE -->
+    <div class="modal-overlay" v-if="showDeleteModal" @click.self="showDeleteModal=false">
+      <div class="modal" style="max-width:400px">
+        <div class="modal-header">
+          <div class="modal-title">確認刪除</div>
+          <span class="api-badge" style="margin-right:8px">DELETE /api/attendance/:id</span>
+          <button class="modal-close" @click="showDeleteModal=false">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-danger">確定要刪除此申請記錄嗎？此操作無法復原。</div>
+          <p style="font-size:13px;color:var(--text-2)">
+            類型：<strong>{{ deleteTarget?.type }}</strong><br>
+            日期：{{ deleteTarget?.start_date }} ~ {{ deleteTarget?.end_date }}<br>
+            事由：{{ deleteTarget?.reason }}
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" @click="showDeleteModal=false">取消</button>
+          <button class="btn btn-danger" @click="doDelete" :disabled="saving">
+            <span v-if="saving" class="loading-spinner"></span>確認刪除
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: NEW USER -->
+    <div class="modal-overlay" v-if="showUserModal" @click.self="showUserModal=false">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">新增員工帳號</div>
+          <span class="api-badge" style="margin-right:8px">POST /api/users</span>
+          <button class="modal-close" @click="showUserModal=false">✕</button>
+        </div>
+        <div class="modal-body">
+          <div v-if="userFormError" class="alert alert-danger">{{ userFormError }}</div>
+          <div class="form-group">
+            <label>帳號 <span style="color:var(--danger)">*</span></label>
+            <input class="form-control" v-model="userForm.account" placeholder="請輸入帳號" />
+          </div>
+          <div class="form-group">
+            <label>姓名 <span style="color:var(--danger)">*</span></label>
+            <input class="form-control" v-model="userForm.name" placeholder="請輸入姓名" />
+          </div>
+          <div class="form-group">
+            <label>部門 <span style="color:var(--danger)">*</span></label>
+            <input class="form-control" v-model="userForm.dept" placeholder="請輸入部門" />
+          </div>
+          <div class="form-group">
+            <label>角色 <span style="color:var(--danger)">*</span></label>
+            <select class="form-control" v-model="userForm.role">
+              <option value="employee">一般員工</option>
+              <option value="admin">管理者</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>密碼 <span style="color:var(--danger)">*</span></label>
+            <input type="password" class="form-control" v-model="userForm.password" placeholder="請輸入密碼" />
           </div>
         </div>
-        <div class="form-group">
-          <label>事由說明 <span style="color:var(--danger)">*</span></label>
-          <textarea class="form-control" v-model="form.reason" placeholder="請說明申請事由（10~200字）" rows="3"></textarea>
-          <div class="text-sm mt-2">{{ form.reason.length }} / 200 字</div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" @click="showUserModal=false">取消</button>
+          <button class="btn btn-primary" @click="saveNewUser" :disabled="saving">
+            <span v-if="saving" class="loading-spinner"></span>
+            {{ saving ? '處理中...' : '建立帳號' }}
+          </button>
         </div>
-        <div class="form-group">
-          <label>代理人</label>
-          <input class="form-control" v-model="form.proxy_name" placeholder="代理人姓名（選填）" />
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" @click="showFormModal=false">取消</button>
-        <button class="btn btn-primary" @click="saveForm" :disabled="saving">
-          <span v-if="saving" class="loading-spinner"></span>
-          {{ saving ? '處理中...' : (editingRecord ? '儲存修改' : '送出申請') }}
-        </button>
       </div>
     </div>
+
   </div>
 
-  <!-- MODAL: REJECT -->
-  <div class="modal-overlay" v-if="showRejectModal" @click.self="showRejectModal=false">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">退回申請</div>
-        <span class="api-badge" style="margin-right:8px">PATCH /api/attendance/:id/reject</span>
-        <button class="modal-close" @click="showRejectModal=false">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="alert alert-warning">
-          退回 <strong>{{ rejectTarget?.user_name }}</strong> 的申請（{{ rejectTarget?.type }}，{{ rejectTarget?.start_date }} ~ {{ rejectTarget?.end_date }}）
-        </div>
-        <div class="form-group">
-          <label>退回原因 <span style="color:var(--danger)">*</span></label>
-          <textarea class="form-control" v-model="rejectReason" placeholder="請輸入退回原因..." rows="4"></textarea>
-        </div>
-        <div v-if="rejectError" class="field-error">{{ rejectError }}</div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" @click="showRejectModal=false">取消</button>
-        <button class="btn btn-danger" @click="doReject" :disabled="saving">
-          <span v-if="saving" class="loading-spinner"></span>確認退回
-        </button>
-      </div>
-    </div>
-  </div>
+  <script>
+    const { createApp } = Vue;
 
-  <!-- MODAL: DELETE -->
-  <div class="modal-overlay" v-if="showDeleteModal" @click.self="showDeleteModal=false">
-    <div class="modal" style="max-width:400px">
-      <div class="modal-header">
-        <div class="modal-title">確認刪除</div>
-        <span class="api-badge" style="margin-right:8px">DELETE /api/attendance/:id</span>
-        <button class="modal-close" @click="showDeleteModal=false">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="alert alert-danger">確定要刪除此申請記錄嗎？此操作無法復原。</div>
-        <p style="font-size:13px;color:var(--text-2)">
-          類型：<strong>{{ deleteTarget?.type }}</strong><br>
-          日期：{{ deleteTarget?.start_date }} ~ {{ deleteTarget?.end_date }}<br>
-          事由：{{ deleteTarget?.reason }}
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" @click="showDeleteModal=false">取消</button>
-        <button class="btn btn-danger" @click="doDelete" :disabled="saving">
-          <span v-if="saving" class="loading-spinner"></span>確認刪除
-        </button>
-      </div>
-    </div>
-  </div>
+    // ══════════════════════════════════════
+    //  API 設定
+    //  後端啟動後修改這個 BASE_URL
+    // ══════════════════════════════════════
+    const API_BASE = 'https://attendance-system-p71q.onrender.com/api';
 
-</div>
+    createApp({
+      data() {
+        return {
+          currentUser: null,
+          token: localStorage.getItem('token') || null,
+          loginForm: { account: '', password: '' },
+          loginError: '',
+          loginLoading: false,
+          page: 'dashboard',
+          pageLoading: false,
+          records: [],
+          userList: [],
+          logs: [],
+          stats: { total: 0, pending: 0, approved: 0, rejected: 0 },
+          pendingCount: 0,
+          leaveTypes: ['特休', '病假', '事假', '公假', '育嬰留停', '加班補休', '其他'],
+          filter: { keyword: '', status: '', type: '', date_from: '', date_to: '' },
+          showFormModal: false,
+          editingRecord: null,
+          form: { type: '', start_date: '', end_date: '', reason: '', proxy_name: '' },
+          formError: '',
+          saving: false,
+          showRejectModal: false,
+          rejectTarget: null,
+          rejectReason: '',
+          rejectError: '',
+          showDeleteModal: false,
+          deleteTarget: null,
+          toasts: [],
+          toastCounter: 0,
+          searchTimer: null,
+          showUserModal: false,
+          userForm: { account: '', name: '', dept: '', role: 'employee', password: '' },
+          userFormError: '',
+        };
+      },
 
-<script>
-const { createApp } = Vue;
+      computed: {
+        isAdmin() { return this.currentUser?.role === 'admin'; },
+        today() { return new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' }); },
+        pageTitle() {
+          return { dashboard: '總覽儀表板', 'my-requests': '我的申請', review: '審核管理', 'all-records': '全部記錄', users: '員工帳號管理', logs: '操作紀錄' }[this.page] || '';
+        },
+        pageSub() {
+          return { dashboard: '您好，' + (this.currentUser?.name || ''), 'my-requests': '管理您的出勤申請', review: '審核員工申請', 'all-records': '查閱所有申請記錄', users: '使用者帳號管理', logs: '稽核操作紀錄' }[this.page] || '';
+        },
+        currentApi() {
+          return { dashboard: 'GET /api/attendance', 'my-requests': 'GET /api/attendance', review: 'GET /api/attendance?status=pending', 'all-records': 'GET /api/attendance', users: 'GET /api/users', logs: 'GET /api/users/audit-logs' }[this.page] || '';
+        },
+      },
 
-// ══════════════════════════════════════
-//  API 設定
-//  後端啟動後修改這個 BASE_URL
-// ══════════════════════════════════════
-const API_BASE = 'https://attendance-system-p71q.onrender.com/api';
+      async mounted() {
+        // 嘗試用已存的 token 自動登入
+        if (this.token) {
+          try {
+            const data = await this.api('GET', '/auth/me');
+            if (data.success) {
+              this.currentUser = data.user;
+              await this.loadPage();
+            }
+          } catch {
+            this.token = null;
+            localStorage.removeItem('token');
+          }
+        }
+      },
 
-createApp({
-  data() {
-    return {
-      currentUser:  null,
-      token:        localStorage.getItem('token') || null,
-      loginForm:    { account: '', password: '' },
-      loginError:   '',
-      loginLoading: false,
-      page:         'dashboard',
-      pageLoading:  false,
-      records:      [],
-      userList:     [],
-      logs:         [],
-      stats:        { total: 0, pending: 0, approved: 0, rejected: 0 },
-      pendingCount: 0,
-      leaveTypes:   ['特休', '病假', '事假', '公假', '育嬰留停', '加班補休', '其他'],
-      filter:       { keyword: '', status: '', type: '', date_from: '', date_to: '' },
-      showFormModal:   false,
-      editingRecord:   null,
-      form:            { type: '', start_date: '', end_date: '', reason: '', proxy_name: '' },
-      formError:       '',
-      saving:          false,
-      showRejectModal: false,
-      rejectTarget:    null,
-      rejectReason:    '',
-      rejectError:     '',
-      showDeleteModal: false,
-      deleteTarget:    null,
-      toasts:          [],
-      toastCounter:    0,
-      searchTimer:     null,
-    };
-  },
+      methods: {
+        // ─────────────────────────────
+        // 統一 API 呼叫
+        // ─────────────────────────────
+        async api(method, path, body = null) {
+          const headers = { 'Content-Type': 'application/json' };
+          if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
 
-  computed: {
-    isAdmin()  { return this.currentUser?.role === 'admin'; },
-    today()    { return new Date().toLocaleDateString('zh-TW', { year:'numeric', month:'2-digit', day:'2-digit', weekday:'short' }); },
-    pageTitle() {
-      return { dashboard:'總覽儀表板', 'my-requests':'我的申請', review:'審核管理', 'all-records':'全部記錄', users:'員工帳號管理', logs:'操作紀錄' }[this.page] || '';
-    },
-    pageSub() {
-      return { dashboard:'您好，' + (this.currentUser?.name||''), 'my-requests':'管理您的出勤申請', review:'審核員工申請', 'all-records':'查閱所有申請記錄', users:'使用者帳號管理', logs:'稽核操作紀錄' }[this.page] || '';
-    },
-    currentApi() {
-      return { dashboard:'GET /api/attendance', 'my-requests':'GET /api/attendance', review:'GET /api/attendance?status=pending', 'all-records':'GET /api/attendance', users:'GET /api/users', logs:'GET /api/users/audit-logs' }[this.page] || '';
-    },
-  },
+          const opts = { method, headers };
+          if (body) opts.body = JSON.stringify(body);
 
-  async mounted() {
-    // 嘗試用已存的 token 自動登入
-    if (this.token) {
-      try {
-        const data = await this.api('GET', '/auth/me');
-        if (data.success) {
-          this.currentUser = data.user;
+          const res = await fetch(API_BASE + path, opts);
+          const data = await res.json();
+
+          // Token 過期：自動登出
+          if (res.status === 401) {
+            this.doLogout();
+            throw new Error('Token 已過期，請重新登入');
+          }
+
+          return { ...data, _status: res.status };
+        },
+
+        // ─────────────────────────────
+        // 登入 / 登出
+        // ─────────────────────────────
+        fillDemo(who) {
+          const map = { admin: ['admin', '1234'], emp1: ['emp1', '1234'], emp2: ['emp2', '1234'] };
+          [this.loginForm.account, this.loginForm.password] = map[who];
+          this.loginError = '';
+        },
+
+        async doLogin() {
+          this.loginError = '';
+          if (!this.loginForm.account || !this.loginForm.password) {
+            this.loginError = '請輸入帳號與密碼'; return;
+          }
+          this.loginLoading = true;
+          try {
+            const data = await this.api('POST', '/auth/login', this.loginForm);
+            if (data.success) {
+              this.token = data.token;
+              this.currentUser = data.user;
+              localStorage.setItem('token', data.token); // Token 存在 localStorage
+              await this.loadPage();
+              this.toast('success', `歡迎回來，${data.user.name}！`);
+            } else {
+              this.loginError = data.message;
+            }
+          } catch (err) {
+            this.loginError = '無法連線到伺服器，請確認後端是否啟動';
+          } finally {
+            this.loginLoading = false;
+          }
+        },
+
+        async doLogout() {
+          try { await this.api('POST', '/auth/logout'); } catch { }
+          this.currentUser = null;
+          this.token = null;
+          this.records = [];
+          localStorage.removeItem('token');
+        },
+
+        // ─────────────────────────────
+        // 頁面導航
+        // ─────────────────────────────
+        async navigate(p) {
+          this.page = p;
+          this.filter = { keyword: '', status: '', type: '', date_from: '', date_to: '' };
+          if (p === 'review') this.filter.status = 'pending';
           await this.loadPage();
-        }
-      } catch {
-        this.token = null;
-        localStorage.removeItem('token');
+        },
+
+        async loadPage() {
+          this.pageLoading = true;
+          try {
+            switch (this.page) {
+              case 'dashboard':
+                await this.fetchRecords();
+                await this.fetchStats();
+                if (this.isAdmin) await this.fetchPendingCount();
+                break;
+              case 'my-requests':
+                await this.fetchRecords();
+                break;
+              case 'review':
+                this.filter.status = 'pending';
+                await this.fetchRecords();
+                await this.fetchPendingCount();
+                break;
+              case 'all-records':
+                await this.fetchRecords();
+                break;
+              case 'users':
+                await this.fetchUsers();
+                break;
+              case 'logs':
+                await this.fetchLogs();
+                break;
+            }
+          } catch (err) {
+            this.toast('error', '載入資料失敗：' + (err.message || '請確認後端連線'));
+          } finally {
+            this.pageLoading = false;
+          }
+        },
+
+        // ─────────────────────────────
+        // 資料取得
+        // ─────────────────────────────
+        async fetchRecords() {
+          const params = new URLSearchParams();
+          if (this.filter.keyword) params.set('keyword', this.filter.keyword);
+          if (this.filter.status) params.set('status', this.filter.status);
+          if (this.filter.type) params.set('type', this.filter.type);
+          if (this.filter.date_from) params.set('date_from', this.filter.date_from);
+          if (this.filter.date_to) params.set('date_to', this.filter.date_to);
+
+          const data = await this.api('GET', `/attendance?${params}`);
+          if (data.success) this.records = data.data;
+        },
+
+        async fetchStats() {
+          // 用四個狀態分別查計數
+          const [all, pending, approved, rejected] = await Promise.all([
+            this.api('GET', '/attendance?limit=1'),
+            this.api('GET', '/attendance?status=pending&limit=1'),
+            this.api('GET', '/attendance?status=approved&limit=1'),
+            this.api('GET', '/attendance?status=rejected&limit=1'),
+          ]);
+          this.stats = {
+            total: all.pagination?.total || 0,
+            pending: pending.pagination?.total || 0,
+            approved: approved.pagination?.total || 0,
+            rejected: rejected.pagination?.total || 0,
+          };
+        },
+
+        async fetchPendingCount() {
+          const data = await this.api('GET', '/attendance?status=pending&limit=1');
+          if (data.success) this.pendingCount = data.pagination?.total || 0;
+        },
+
+        async fetchUsers() {
+          const data = await this.api('GET', '/users');
+          if (data.success) this.userList = data.data;
+        },
+
+        async fetchLogs() {
+          const data = await this.api('GET', '/users/audit-logs');
+          if (data.success) this.logs = data.data;
+        },
+
+        debounceSearch() {
+          clearTimeout(this.searchTimer);
+          this.searchTimer = setTimeout(() => this.fetchRecords(), 400);
+        },
+
+        // ─────────────────────────────
+        // 新增 / 編輯 Modal
+        // ─────────────────────────────
+        openNewModal() {
+          this.editingRecord = null;
+          this.form = { type: '', start_date: '', end_date: '', reason: '', proxy_name: '' };
+          this.formError = '';
+          this.showFormModal = true;
+        },
+
+        openEditModal(r) {
+          if (r.status !== 'pending') { this.toast('warning', '僅能編輯申請中的記錄'); return; }
+          this.editingRecord = r;
+          this.form = { type: r.type, start_date: r.start_date, end_date: r.end_date, reason: r.reason, proxy_name: r.proxy_name || '' };
+          this.formError = '';
+          this.showFormModal = true;
+        },
+
+        async saveForm() {
+          this.formError = '';
+          // 前端快速驗證
+          if (!this.form.type) { this.formError = '請選擇申請類型'; return; }
+          if (!this.form.start_date) { this.formError = '請填寫開始日期'; return; }
+          if (!this.form.end_date) { this.formError = '請填寫結束日期'; return; }
+          if (this.form.start_date > this.form.end_date) { this.formError = '結束日期不得早於開始日期'; return; }
+          if (!this.form.reason || this.form.reason.length < 10) { this.formError = '事由至少需10字'; return; }
+
+          this.saving = true;
+          try {
+            let data;
+            if (this.editingRecord) {
+              data = await this.api('PUT', `/attendance/${this.editingRecord.id}`, this.form);
+            } else {
+              data = await this.api('POST', '/attendance', this.form);
+            }
+
+            if (data.success) {
+              this.toast('success', data.message);
+              this.showFormModal = false;
+              await this.fetchRecords();
+              if (this.page === 'dashboard') await this.fetchStats();
+            } else {
+              this.formError = data.message;
+            }
+          } catch (err) {
+            this.formError = '操作失敗，請確認後端連線';
+          } finally {
+            this.saving = false;
+          }
+        },
+
+        // ─────────────────────────────
+        // 審核
+        // ─────────────────────────────
+        async doApprove(r) {
+          this.saving = true;
+          try {
+            const data = await this.api('PATCH', `/attendance/${r.id}/approve`);
+            if (data.success) {
+              this.toast('success', data.message);
+              await this.fetchRecords();
+              await this.fetchPendingCount();
+            } else {
+              this.toast('error', data.message);
+            }
+          } finally { this.saving = false; }
+        },
+
+        openRejectModal(r) {
+          this.rejectTarget = r;
+          this.rejectReason = '';
+          this.rejectError = '';
+          this.showRejectModal = true;
+        },
+
+        async doReject() {
+          if (!this.rejectReason.trim()) { this.rejectError = '請填寫退回原因'; return; }
+          this.saving = true;
+          try {
+            const data = await this.api('PATCH', `/attendance/${this.rejectTarget.id}/reject`, { reject_reason: this.rejectReason });
+            if (data.success) {
+              this.toast('warning', data.message);
+              this.showRejectModal = false;
+              await this.fetchRecords();
+              await this.fetchPendingCount();
+            } else {
+              this.rejectError = data.message;
+            }
+          } finally { this.saving = false; }
+        },
+
+        // ─────────────────────────────
+        // 刪除
+        // ─────────────────────────────
+        confirmDelete(r) {
+          if (r.status === 'approved') { this.toast('error', '已核准的申請不可刪除'); return; }
+          this.deleteTarget = r;
+          this.showDeleteModal = true;
+        },
+
+        async doDelete() {
+          this.saving = true;
+          try {
+            const data = await this.api('DELETE', `/attendance/${this.deleteTarget.id}`);
+            if (data.success) {
+              this.toast('success', data.message);
+              this.showDeleteModal = false;
+              await this.fetchRecords();
+              if (this.page === 'dashboard') await this.fetchStats();
+            } else {
+              this.toast('error', data.message);
+              this.showDeleteModal = false;
+            }
+          } finally { this.saving = false; }
+        },
+
+        // ─────────────────────────────
+        // 匯出 CSV
+        // ─────────────────────────────
+        exportCSV() {
+          const headers = ['編號', '申請人', '部門', '類型', '開始日期', '結束日期', '事由', '狀態', '申請時間'];
+          const rows = this.records.map(r => [r.id, r.user_name, r.dept, r.type, r.start_date, r.end_date, r.reason, this.statusLabel(r.status), this.fmtDate(r.created_at)]);
+          const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+          const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob); a.download = '出勤申請記錄.csv'; a.click();
+          this.toast('success', 'CSV 匯出成功');
+        },
+
+        // ─────────────────────────────
+        // 新增員工
+        // ─────────────────────────────
+        openNewUserModal() {
+          this.userForm = { account: '', name: '', dept: '', role: 'employee', password: '' };
+          this.userFormError = '';
+          this.showUserModal = true;
+        },
+
+        async saveNewUser() {
+          this.userFormError = '';
+          if (!this.userForm.account) { this.userFormError = '請填寫帳號'; return; }
+          if (!this.userForm.name) { this.userFormError = '請填寫姓名'; return; }
+          if (!this.userForm.dept) { this.userFormError = '請填寫部門'; return; }
+          if (!this.userForm.password) { this.userFormError = '請填寫密碼'; return; }
+
+          this.saving = true;
+          try {
+            const data = await this.api('POST', '/users', this.userForm);
+            if (data.success) {
+              this.toast('success', '員工帳號建立成功');
+              this.showUserModal = false;
+              await this.fetchUsers();
+            } else {
+              this.userFormError = data.message;
+            }
+          } catch (err) {
+            this.userFormError = '操作失敗，請確認後端連線';
+          } finally {
+            this.saving = false;
+          }
+        },
+
+        // ─────────────────────────────
+        // 工具
+        // ─────────────────────────────
+        statusBadge(s) { return { pending: 'badge-pending', approved: 'badge-approved', rejected: 'badge-rejected' }[s]; },
+        statusLabel(s) { return { pending: '申請中', approved: '已核准', rejected: '已退回' }[s] || s; },
+        fmtDate(d) { return d ? new Date(d).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/\//g, '-') : '—'; },
+
+        toast(type, msg) {
+          const id = ++this.toastCounter;
+          this.toasts.push({ id, type, msg });
+          setTimeout(() => { this.toasts = this.toasts.filter(t => t.id !== id); }, 3500);
+        },
       }
-    }
-  },
-
-  methods: {
-    // ─────────────────────────────
-    // 統一 API 呼叫
-    // ─────────────────────────────
-    async api(method, path, body = null) {
-      const headers = { 'Content-Type': 'application/json' };
-      if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
-
-      const opts = { method, headers };
-      if (body) opts.body = JSON.stringify(body);
-
-      const res = await fetch(API_BASE + path, opts);
-      const data = await res.json();
-
-      // Token 過期：自動登出
-      if (res.status === 401) {
-        this.doLogout();
-        throw new Error('Token 已過期，請重新登入');
-      }
-
-      return { ...data, _status: res.status };
-    },
-
-    // ─────────────────────────────
-    // 登入 / 登出
-    // ─────────────────────────────
-    fillDemo(who) {
-      const map = { admin:['admin','1234'], emp1:['emp1','1234'], emp2:['emp2','1234'] };
-      [this.loginForm.account, this.loginForm.password] = map[who];
-      this.loginError = '';
-    },
-
-    async doLogin() {
-      this.loginError = '';
-      if (!this.loginForm.account || !this.loginForm.password) {
-        this.loginError = '請輸入帳號與密碼'; return;
-      }
-      this.loginLoading = true;
-      try {
-        const data = await this.api('POST', '/auth/login', this.loginForm);
-        if (data.success) {
-          this.token = data.token;
-          this.currentUser = data.user;
-          localStorage.setItem('token', data.token); // Token 存在 localStorage
-          await this.loadPage();
-          this.toast('success', `歡迎回來，${data.user.name}！`);
-        } else {
-          this.loginError = data.message;
-        }
-      } catch (err) {
-        this.loginError = '無法連線到伺服器，請確認後端是否啟動';
-      } finally {
-        this.loginLoading = false;
-      }
-    },
-
-    async doLogout() {
-      try { await this.api('POST', '/auth/logout'); } catch {}
-      this.currentUser = null;
-      this.token = null;
-      this.records = [];
-      localStorage.removeItem('token');
-    },
-
-    // ─────────────────────────────
-    // 頁面導航
-    // ─────────────────────────────
-    async navigate(p) {
-      this.page = p;
-      this.filter = { keyword:'', status:'', type:'', date_from:'', date_to:'' };
-      if (p === 'review') this.filter.status = 'pending';
-      await this.loadPage();
-    },
-
-    async loadPage() {
-      this.pageLoading = true;
-      try {
-        switch (this.page) {
-          case 'dashboard':
-            await this.fetchRecords();
-            await this.fetchStats();
-            if (this.isAdmin) await this.fetchPendingCount();
-            break;
-          case 'my-requests':
-            await this.fetchRecords();
-            break;
-          case 'review':
-            this.filter.status = 'pending';
-            await this.fetchRecords();
-            await this.fetchPendingCount();
-            break;
-          case 'all-records':
-            await this.fetchRecords();
-            break;
-          case 'users':
-            await this.fetchUsers();
-            break;
-          case 'logs':
-            await this.fetchLogs();
-            break;
-        }
-      } catch (err) {
-        this.toast('error', '載入資料失敗：' + (err.message || '請確認後端連線'));
-      } finally {
-        this.pageLoading = false;
-      }
-    },
-
-    // ─────────────────────────────
-    // 資料取得
-    // ─────────────────────────────
-    async fetchRecords() {
-      const params = new URLSearchParams();
-      if (this.filter.keyword)   params.set('keyword',   this.filter.keyword);
-      if (this.filter.status)    params.set('status',    this.filter.status);
-      if (this.filter.type)      params.set('type',      this.filter.type);
-      if (this.filter.date_from) params.set('date_from', this.filter.date_from);
-      if (this.filter.date_to)   params.set('date_to',   this.filter.date_to);
-
-      const data = await this.api('GET', `/attendance?${params}`);
-      if (data.success) this.records = data.data;
-    },
-
-    async fetchStats() {
-      // 用四個狀態分別查計數
-      const [all, pending, approved, rejected] = await Promise.all([
-        this.api('GET', '/attendance?limit=1'),
-        this.api('GET', '/attendance?status=pending&limit=1'),
-        this.api('GET', '/attendance?status=approved&limit=1'),
-        this.api('GET', '/attendance?status=rejected&limit=1'),
-      ]);
-      this.stats = {
-        total:    all.pagination?.total    || 0,
-        pending:  pending.pagination?.total  || 0,
-        approved: approved.pagination?.total || 0,
-        rejected: rejected.pagination?.total || 0,
-      };
-    },
-
-    async fetchPendingCount() {
-      const data = await this.api('GET', '/attendance?status=pending&limit=1');
-      if (data.success) this.pendingCount = data.pagination?.total || 0;
-    },
-
-    async fetchUsers() {
-      const data = await this.api('GET', '/users');
-      if (data.success) this.userList = data.data;
-    },
-
-    async fetchLogs() {
-      const data = await this.api('GET', '/users/audit-logs');
-      if (data.success) this.logs = data.data;
-    },
-
-    debounceSearch() {
-      clearTimeout(this.searchTimer);
-      this.searchTimer = setTimeout(() => this.fetchRecords(), 400);
-    },
-
-    // ─────────────────────────────
-    // 新增 / 編輯 Modal
-    // ─────────────────────────────
-    openNewModal() {
-      this.editingRecord = null;
-      this.form = { type:'', start_date:'', end_date:'', reason:'', proxy_name:'' };
-      this.formError = '';
-      this.showFormModal = true;
-    },
-
-    openEditModal(r) {
-      if (r.status !== 'pending') { this.toast('warning', '僅能編輯申請中的記錄'); return; }
-      this.editingRecord = r;
-      this.form = { type: r.type, start_date: r.start_date, end_date: r.end_date, reason: r.reason, proxy_name: r.proxy_name || '' };
-      this.formError = '';
-      this.showFormModal = true;
-    },
-
-    async saveForm() {
-      this.formError = '';
-      // 前端快速驗證
-      if (!this.form.type)       { this.formError = '請選擇申請類型'; return; }
-      if (!this.form.start_date) { this.formError = '請填寫開始日期'; return; }
-      if (!this.form.end_date)   { this.formError = '請填寫結束日期'; return; }
-      if (this.form.start_date > this.form.end_date) { this.formError = '結束日期不得早於開始日期'; return; }
-      if (!this.form.reason || this.form.reason.length < 10) { this.formError = '事由至少需10字'; return; }
-
-      this.saving = true;
-      try {
-        let data;
-        if (this.editingRecord) {
-          data = await this.api('PUT', `/attendance/${this.editingRecord.id}`, this.form);
-        } else {
-          data = await this.api('POST', '/attendance', this.form);
-        }
-
-        if (data.success) {
-          this.toast('success', data.message);
-          this.showFormModal = false;
-          await this.fetchRecords();
-          if (this.page === 'dashboard') await this.fetchStats();
-        } else {
-          this.formError = data.message;
-        }
-      } catch (err) {
-        this.formError = '操作失敗，請確認後端連線';
-      } finally {
-        this.saving = false;
-      }
-    },
-
-    // ─────────────────────────────
-    // 審核
-    // ─────────────────────────────
-    async doApprove(r) {
-      this.saving = true;
-      try {
-        const data = await this.api('PATCH', `/attendance/${r.id}/approve`);
-        if (data.success) {
-          this.toast('success', data.message);
-          await this.fetchRecords();
-          await this.fetchPendingCount();
-        } else {
-          this.toast('error', data.message);
-        }
-      } finally { this.saving = false; }
-    },
-
-    openRejectModal(r) {
-      this.rejectTarget = r;
-      this.rejectReason = '';
-      this.rejectError  = '';
-      this.showRejectModal = true;
-    },
-
-    async doReject() {
-      if (!this.rejectReason.trim()) { this.rejectError = '請填寫退回原因'; return; }
-      this.saving = true;
-      try {
-        const data = await this.api('PATCH', `/attendance/${this.rejectTarget.id}/reject`, { reject_reason: this.rejectReason });
-        if (data.success) {
-          this.toast('warning', data.message);
-          this.showRejectModal = false;
-          await this.fetchRecords();
-          await this.fetchPendingCount();
-        } else {
-          this.rejectError = data.message;
-        }
-      } finally { this.saving = false; }
-    },
-
-    // ─────────────────────────────
-    // 刪除
-    // ─────────────────────────────
-    confirmDelete(r) {
-      if (r.status === 'approved') { this.toast('error', '已核准的申請不可刪除'); return; }
-      this.deleteTarget = r;
-      this.showDeleteModal = true;
-    },
-
-    async doDelete() {
-      this.saving = true;
-      try {
-        const data = await this.api('DELETE', `/attendance/${this.deleteTarget.id}`);
-        if (data.success) {
-          this.toast('success', data.message);
-          this.showDeleteModal = false;
-          await this.fetchRecords();
-          if (this.page === 'dashboard') await this.fetchStats();
-        } else {
-          this.toast('error', data.message);
-          this.showDeleteModal = false;
-        }
-      } finally { this.saving = false; }
-    },
-
-    // ─────────────────────────────
-    // 匯出 CSV
-    // ─────────────────────────────
-    exportCSV() {
-      const headers = ['編號','申請人','部門','類型','開始日期','結束日期','事由','狀態','申請時間'];
-      const rows = this.records.map(r => [r.id, r.user_name, r.dept, r.type, r.start_date, r.end_date, r.reason, this.statusLabel(r.status), this.fmtDate(r.created_at)]);
-      const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob); a.download = '出勤申請記錄.csv'; a.click();
-      this.toast('success', 'CSV 匯出成功');
-    },
-
-    // ─────────────────────────────
-    // 工具
-    // ─────────────────────────────
-    statusBadge(s) { return { pending:'badge-pending', approved:'badge-approved', rejected:'badge-rejected' }[s]; },
-    statusLabel(s) { return { pending:'申請中', approved:'已核准', rejected:'已退回' }[s] || s; },
-    fmtDate(d)     { return d ? new Date(d).toLocaleString('zh-TW', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }).replace(/\//g,'-') : '—'; },
-
-    toast(type, msg) {
-      const id = ++this.toastCounter;
-      this.toasts.push({ id, type, msg });
-      setTimeout(() => { this.toasts = this.toasts.filter(t => t.id !== id); }, 3500);
-    },
-  }
-}).mount('#app');
-</script>
+    }).mount('#app');
+  </script>
 </body>
+
 </html>
