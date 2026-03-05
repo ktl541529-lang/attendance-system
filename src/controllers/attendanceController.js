@@ -71,8 +71,8 @@ const getList = async (req, res) => {
 
     // 取資料（加分頁）
     const [rows] = await pool.execute(
-      `${BASE_SELECT} ${WHERE} ORDER BY r.created_at DESC LIMIT ? OFFSET ?`,
-      [...params, limitNum, OFFSET]
+      `${BASE_SELECT} ${WHERE} ORDER BY r.created_at DESC LIMIT ${limitNum} OFFSET ${OFFSET}`,
+      params
     );
 
     return res.json({
