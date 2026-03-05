@@ -5,6 +5,30 @@
 
 ---
 
+## 🌐 線上 Demo
+
+👉 [點此開啟系統](https://ktl541529-lang.github.io/attendance-system/frontend.html)
+
+| 層級 | 服務 |
+|------|------|
+| 前端 | GitHub Pages |
+| 後端 | Render（Node.js） |
+| 資料庫 | Railway（MySQL） |
+
+---
+
+## 🛠 技術棧
+
+| 層級 | 技術 |
+|------|------|
+| 前端 | Vue 3（CDN）、原生 CSS |
+| 後端 | Node.js、Express |
+| 資料庫 | MySQL |
+| 驗證 | JWT + bcrypt |
+| 部署 | GitHub Pages + Render + Railway |
+
+---
+
 ## 📁 專案結構
 
 ```
@@ -29,12 +53,13 @@ attendance-backend/
 ├── package.json
 └── .env.example                    # 環境變數範本
 ```
+
 ---
 
 ## 🔑 示範帳號
 
-| 帳號  | 密碼 | 角色   | 部門   |
-|-------|------|--------|--------|
+| 帳號  | 密碼 | 角色 | 部門 |
+|-------|------|------|------|
 | admin | 1234 | 管理者 | 人資部 |
 | emp1  | 1234 | 一般員工 | 護理部 |
 | emp2  | 1234 | 一般員工 | 放射科 |
@@ -60,6 +85,7 @@ POST /api/auth/login
   "password": "1234"
 }
 ```
+
 #### 登入回應
 ```json
 {
@@ -86,6 +112,7 @@ POST /api/auth/login
 | PATCH  | `/api/attendance/:id/reject`  | 退回（需填原因） | 管理者 |
 
 #### 查詢參數（GET /api/attendance）
+
 | 參數 | 說明 |
 |------|------|
 | `status` | pending / approved / rejected |
@@ -129,6 +156,7 @@ audit_logs                -- 操作稽核紀錄
 ```
 
 ### attendance_requests 狀態機
+
 ```
 新增 → pending
 pending → approved（管理者核准）
