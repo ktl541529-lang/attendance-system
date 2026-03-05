@@ -2013,7 +2013,8 @@
           if (!this.userForm.account) { this.userFormError = '請填寫帳號'; return; }
           if (!this.userForm.name) { this.userFormError = '請填寫姓名'; return; }
           if (!this.userForm.dept) { this.userFormError = '請填寫部門'; return; }
-          if (!this.userForm.password) { this.userFormError = '請填寫密碼'; return; }
+          if (!this.userForm.password) { this.userFormError = '請填寫密碼'; return; }          
+          if (this.userForm.password.length < 6) { this.userFormError = '密碼至少需6位'; return; }
 
           this.saving = true;
           try {
