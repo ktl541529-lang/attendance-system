@@ -1,7 +1,7 @@
 // src/controllers/userController.js
 
 const bcrypt = require('bcryptjs');
-const pool   = require('../db/pool');
+const pool = require('../db/pool');
 
 /**
  * GET /api/users
@@ -69,10 +69,10 @@ const getAuditLogs = async (req, res) => {
 
     const [rows] = await pool.execute(
       `SELECT id, user_id, actor_name, action, target_id, detail, ip_address, created_at
-       FROM audit_logs
-       ORDER BY created_at DESC
-       LIMIT ? OFFSET ?`,
-      [parseInt(limit), offset]
+   FROM audit_logs
+   ORDER BY created_at DESC
+   LIMIT ${parseInt(limit)} OFFSET ${offset}`,
+      []
     );
 
     const [[{ total }]] = await pool.execute('SELECT COUNT(*) AS total FROM audit_logs');

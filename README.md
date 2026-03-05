@@ -29,48 +29,6 @@ attendance-backend/
 ├── package.json
 └── .env.example                    # 環境變數範本
 ```
-
----
-
-## 🚀 快速啟動
-
-### 1. 安裝 Node.js 套件
-
-```bash
-cd attendance-backend
-npm install
-```
-
-### 2. 設定環境變數
-
-```bash
-cp .env.example .env
-# 編輯 .env，填入你的 MySQL 帳密
-```
-
-### 3. 初始化資料庫
-
-```bash
-# 方法 A：直接用 MySQL CLI 執行
-mysql -u root -p < src/db/init.sql
-
-# 方法 B：在 MySQL Workbench 開啟 init.sql 執行
-```
-
-### 4. 啟動後端
-
-```bash
-npm run dev       # 開發模式（nodemon 自動重啟）
-npm start         # 正式模式
-```
-
-後端啟動後訪問：`http://localhost:3001/api/health`
-
-### 5. 開啟前端
-
-用 VS Code Live Server 或任何靜態伺服器開啟 `frontend.html`，
-或直接用瀏覽器開啟（注意 CORS 設定）。
-
 ---
 
 ## 🔑 示範帳號
