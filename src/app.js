@@ -13,8 +13,21 @@ const app = express();
 // ─────────────────────────────────────────
 
 // CORS：允許前端跨域存取
+const allowedOrigins = [
+  'https://ktl541529-lang.github.io',
+  'http://localhost:4200',
+  'http://localhost:5500',
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5500',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS policy: origin ${origin} not allowed`));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
