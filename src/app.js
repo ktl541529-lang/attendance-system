@@ -4,7 +4,7 @@
 require('dotenv').config();
 
 const express = require('express');
-const cors    = require('cors');
+const cors = require('cors');
 
 const app = express();
 
@@ -16,6 +16,7 @@ const app = express();
 const allowedOrigins = [
   'https://ktl541529-lang.github.io',
   'http://localhost:4200',
+  'http://localhost:5173',
   'http://localhost:5500',
 ];
 
@@ -48,9 +49,10 @@ if (process.env.NODE_ENV !== 'production') {
 // ─────────────────────────────────────────
 // 路由
 // ─────────────────────────────────────────
-app.use('/api/auth',       require('./routes/auth'));
+app.use('/api/auth', require('./routes/auth'));
 app.use('/api/attendance', require('./routes/attendance'));
-app.use('/api/users',      require('./routes/users'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/holidays', require('./routes/holidays'));
 // /api/users/audit-logs 已在 users router 內處理
 
 // 健康檢查（部署後確認服務是否存活）
