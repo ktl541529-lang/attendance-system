@@ -1,4 +1,3 @@
-// src/controllers/holidaysController.js
 const https = require('https');
 
 const HOLIDAY_API_URL =
