@@ -16,6 +16,7 @@ const app = express();
 const allowedOrigins = [
   'https://ktl541529-lang.github.io',
   'https://attendance-system-vue-seven.vercel.app',  // Vue 3 前端
+   'https://attendance-system-ts.vercel.app',  // Angular 前端
   'http://localhost:4200',
   'http://localhost:5173',
   'http://localhost:5500',
