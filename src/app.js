@@ -54,6 +54,7 @@ if (process.env.NODE_ENV !== 'production') {
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/attendance', require('./routes/attendance'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/logs', require('./routes/logs'));
 app.use('/api/holidays', require('./routes/holidays'));
 // /api/users/audit-logs 已在 users router 內處理
 

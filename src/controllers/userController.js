@@ -73,4 +73,35 @@ const getAuditLogs = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, createUser, getAuditLogs };
+const getMyLogs = async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const userId = req.user.id; // authenticate middleware 注入的
+
+    const { rows } = await pool.query(
+      `SELECT id, user_id, actor_name, action, target_id, detail, ip_address, created_at
+       FROM audit_logs
+       WHERE user_id = $1
+       ORDER BY created_at DESC
+       LIMIT $2 OFFSET $3`,
+      [userId, parseInt(limit), offset]
+    );
+
+    const countResult = await pool.query(
+      'SELECT COUNT(*) AS total FROM audit_logs WHERE user_id = $1',
+      [userId]
+    );
+    const total = parseInt(countResult.rows[0].total);
+
+    return res.json({
+      success: true,
+      data: rows,
+      pagination: { total, page: parseInt(page), limit: parseInt(limit) }
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: '查詢失敗' });
+  }
+};
+
+module.exports = { getUsers, createUser, getAuditLogs, getMyLogs };
