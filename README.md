@@ -5,8 +5,8 @@
 > | 版本 | Repo | 技術定位 |
 > |------|------|----------|
 > | v1 ✦ **當前版本** | `attendance-system` | 後端核心，Node.js + Express + PostgreSQL |
-> | v2 | `attendance-system-vue` | 前端初版，Vue 3 + Vite |
-> | v3 | `attendance-system-ts` | 前端重構版，Angular 17+ + TypeScript |
+> | v2 | `attendance-system-ts` | Angular 前端，TypeScript 技術探索 |
+> | v3 | `attendance-system-vue` | Vue 3 前端，主力版本，持續迭代中 |
 
 ---
 
@@ -26,7 +26,7 @@
 
 | 項目 | 說明 |
 |------|------|
-| 前端 | Vercel（Vue 3 + Vite，v2）|
+| 前端 | Vercel（Vue 3 + Vite，v3）|
 | 後端 | Render（Node.js + Express）|
 | 資料庫 | Supabase（PostgreSQL）|
 
@@ -86,12 +86,13 @@ Request → Router → JWT Middleware → RBAC Middleware → Controller → Aud
 - 新增出勤申請（年假、病假、事假、喪假、公假）
 - 編輯 / 刪除自己的待審申請
 - 查詢個人申請紀錄
+- 查詢個人操作紀錄
 
 **管理者功能**
 - 審核申請（核准 / 拒絕，須填寫拒絕原因）
 - 查詢全體申請紀錄，支援多條件篩選
 - 員工帳號管理
-- 操作審計日誌查詢
+- 查詢全體操作審計日誌
 
 **系統特性**
 - 狀態機設計：申請只能從 `pending` 流向 `approved` 或 `rejected`，不可逆
@@ -242,7 +243,14 @@ HTTP Response ←  Controller  ←  PostgreSQL
 |--------|------|------|------|
 | GET  | `/api/users` | 查詢所有員工帳號與部門資訊 | 管理者 |
 | POST | `/api/users` | 新增員工帳號 | 管理者 |
-| GET  | `/api/users/audit-logs` | 查詢操作審計日誌 | 管理者 |
+| GET  | `/api/users/audit-logs` | 查詢全體操作審計日誌（舊端點）| 管理者 |
+
+### Logs
+
+| Method | Path | 說明 | 權限 |
+|--------|------|------|------|
+| GET | `/api/logs` | 查詢全體操作審計日誌 | 管理者 |
+| GET | `/api/logs/my` | 查詢當前登入者自己的操作紀錄 | 登入後 |
 
 ### API 範例
 
@@ -360,11 +368,12 @@ attendance-backend/
     ├── controllers/
     │   ├── authController.js
     │   ├── attendanceController.js  # 出勤 CRUD + 狀態機邏輯
-    │   └── userController.js
+    │   └── userController.js        # 使用者管理 + 操作紀錄查詢
     └── routes/
         ├── auth.js
         ├── attendance.js
-        └── users.js
+        ├── users.js
+        └── logs.js                  # 操作紀錄路由（/api/logs）
 ```
 
 ---
@@ -400,4 +409,4 @@ FRONTEND_URL=http://localhost:5173
 
 ---
 
-> 📎 **前端說明**：本後端同時服務 v2 Vue（[attendance-system-vue](https://github.com/ktl541529-lang/attendance-system-vue)）與 v3 Angular（[attendance-system-ts](https://github.com/ktl541529-lang/attendance-system-ts)）兩個前端版本。
+> 📎 **前端說明**：本後端同時服務 v2 Angular（[attendance-system-ts](https://github.com/ktl541529-lang/attendance-system-ts)）與 v3 Vue 3（[attendance-system-vue](https://github.com/ktl541529-lang/attendance-system-vue)）兩個前端版本。
